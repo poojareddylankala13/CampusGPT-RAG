@@ -4,7 +4,7 @@ target-version = "py312"
 [lint]
 # Enable Pycodestyle (E, W), Pyflakes (F), and Isort (I)
 select = ["E", "F", "W", "I"]
-ignore = []
+ignore = ["E501"]
 
 [lint.isort]
 combine-as-imports = true
