@@ -14,5 +14,6 @@ test:
 
 validate:
 	python scripts/validate_project.py
+	python validate_project.py
 
 all: format lint typecheck test validate
