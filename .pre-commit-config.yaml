@@ -45,6 +45,12 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: semgrep
+        name: semgrep
+        entry: semgrep scan --config auto --error --quiet modules/
+        language: system
+        pass_filenames: false
+        always_run: true
 
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0

@@ -1,3 +1,9 @@
+[project]
+name = "campusgpt"
+version = "1.0.0"
+description = "CampusGPT - Intelligent University Knowledge and Document RAG Assistant"
+license = {text = "AGPL-3.0-only"}
+
 [tool.black]
 line-length = 120
 target-version = ['py313']

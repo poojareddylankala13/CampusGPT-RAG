@@ -51,6 +51,7 @@ def validate_structure() -> bool:
         ".gitlab-ci.yml",
         "cliff.toml",
         ".secrets.baseline",
+        "LICENSE",
     ]
     print("\n📁 Checking required root files:")
     for file in required_files:

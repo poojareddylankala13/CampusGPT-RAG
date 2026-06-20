@@ -1,7 +1,10 @@
 stages:
   - lint
+  - format
+  - type_check
   - security
   - test
+  - coverage
 
 image: python:3.13
 
@@ -21,11 +24,6 @@ before_script:
   - pip install -r requirements.txt
 
 # --- LINT STAGE ---
-black-format:
-  stage: lint
-  script:
-    - black --check .
-
 ruff-lint:
   stage: lint
   script:
@@ -51,6 +49,23 @@ pyupgrade-check:
   script:
     - pre-commit run pyupgrade --all-files || true
 
+# --- FORMAT STAGE ---
+black-format:
+  stage: format
+  script:
+    - black --check .
+
+ruff-format:
+  stage: format
+  script:
+    - ruff format --check .
+
+# --- TYPE CHECK STAGE ---
+mypy-typecheck:
+  stage: type_check
+  script:
+    - mypy .
+
 # --- SECURITY STAGE ---
 bandit-sast:
   stage: security
@@ -60,18 +75,22 @@ bandit-sast:
 dependency-audit:
   stage: security
   script:
-    # Run pip-audit to check for vulnerable dependencies
     - pip-audit --local
 
 secret-scanning:
   stage: security
   script:
-    # Use detect-secrets to check for committed keys and credentials
     - detect-secrets scan --baseline .secrets.baseline
 
 # --- TEST STAGE ---
-pytest-coverage:
+pytest-run:
   stage: test
+  script:
+    - pytest
+
+# --- COVERAGE STAGE ---
+pytest-coverage:
+  stage: coverage
   script:
     - pytest
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\%)/'
