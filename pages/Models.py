@@ -95,7 +95,7 @@ else:
         st.markdown(
             f"""
             <div style="background-color: rgba(27, 54, 93, 0.04); padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 20px; font-weight: 700; color: #1b365d;">{selected_model['size_gb']}</div>
+                <div style="font-size: 20px; font-weight: 700; color: #1b365d;">{selected_model["size_gb"]}</div>
                 <div style="font-size: 11px; text-transform: uppercase; color: #666; font-weight: 600; margin-top: 5px;">File Size</div>
             </div>
         """,
@@ -106,7 +106,7 @@ else:
         st.markdown(
             f"""
             <div style="background-color: rgba(27, 54, 93, 0.04); padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 20px; font-weight: 700; color: #1b365d;">{selected_model['context_len']} tokens</div>
+                <div style="font-size: 20px; font-weight: 700; color: #1b365d;">{selected_model["context_len"]} tokens</div>
                 <div style="font-size: 11px; text-transform: uppercase; color: #666; font-weight: 600; margin-top: 5px;">Context Length Limit</div>
             </div>
         """,
@@ -117,7 +117,7 @@ else:
         st.markdown(
             f"""
             <div style="background-color: rgba(197, 160, 89, 0.08); padding: 15px; border-radius: 8px; text-align: center;">
-                <div style="font-size: 20px; font-weight: 700; color: #8c6828;">~ {selected_model['ram_estimate']}</div>
+                <div style="font-size: 20px; font-weight: 700; color: #8c6828;">~ {selected_model["ram_estimate"]}</div>
                 <div style="font-size: 11px; text-transform: uppercase; color: #666; font-weight: 600; margin-top: 5px;">Est. RAM Needed</div>
             </div>
         """,

@@ -38,7 +38,7 @@ def generate_document_summary(doc_name, file_path):
         # 2. Extract full text
         full_text = ""
         for i, page in enumerate(pages):
-            full_text += f"\n--- Page {i+1} ---\n{page.page_content}\n"
+            full_text += f"\n--- Page {i + 1} ---\n{page.page_content}\n"
 
         if not full_text.strip():
             return "❌ Could not extract text from the document. The PDF may be scanned or empty."

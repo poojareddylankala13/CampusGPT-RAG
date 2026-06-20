@@ -47,7 +47,7 @@ def generate_pdf_transcript(history):
         # Header
         pdf.set_font("helvetica", "B", 10)
         pdf.set_text_color(197, 160, 89)  # Gold
-        pdf.cell(0, 6, f"Query #{i+1} - {entry['timestamp']}", ln=True)
+        pdf.cell(0, 6, f"Query #{i + 1} - {entry['timestamp']}", ln=True)
         pdf.ln(1)
 
         # Question
@@ -68,7 +68,7 @@ def generate_pdf_transcript(history):
             pdf.set_text_color(100, 100, 100)
             sources_txt = []
             for s in entry["sources"]:
-                pct_str = f" [Match: {s['score']*100:.1f}%]" if "score" in s else ""
+                pct_str = f" [Match: {s['score'] * 100:.1f}%]" if "score" in s else ""
                 sources_txt.append(f"{s['document']} (Page {s.get('page', s.get('pages', 'N/A'))}){pct_str}")
             pdf.multi_cell(0, 5, "Sources: " + ", ".join(sources_txt))
 
@@ -116,7 +116,7 @@ with chat_container:
             f"""
             <div class="chat-message user">
                 <div class="chat-sender">You</div>
-                <div class="chat-content">{chat['question']}</div>
+                <div class="chat-content">{chat["question"]}</div>
             </div>
         """,
             unsafe_allow_html=True,
@@ -127,7 +127,7 @@ with chat_container:
             f"""
             <div class="chat-message assistant">
                 <div class="chat-sender">CampusGPT</div>
-                <div class="chat-content">{chat['answer']}</div>
+                <div class="chat-content">{chat["answer"]}</div>
             </div>
         """,
             unsafe_allow_html=True,
@@ -145,7 +145,7 @@ with chat_container:
                     st.markdown(
                         f"""
                         <div style="background-color: #fafafa; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #c5a059;">
-                            <span style="font-weight: 600; font-size: 12px; color: #1b365d;">#{idx+1} {doc_name} (Page {page_num})</span>
+                            <span style="font-weight: 600; font-size: 12px; color: #1b365d;">#{idx + 1} {doc_name} (Page {page_num})</span>
                             <span style="float: right; font-size: 11px; font-weight: 700; color: #197269; background-color: rgba(46, 196, 182, 0.1); padding: 2px 6px; border-radius: 10px;">🎯 {score_pct:.1f}% Match</span>
                             <p style="font-size: 12px; line-height: 1.4; color: #555; margin-top: 5px; font-family: monospace; white-space: pre-wrap;">{preview}</p>
                         </div>
@@ -205,7 +205,7 @@ if user_query:
                 f"""
                 <div class="chat-message assistant">
                     <div class="chat-sender">CampusGPT</div>
-                    <div class="chat-content">{res['answer']}</div>
+                    <div class="chat-content">{res["answer"]}</div>
                 </div>
             """,
                 unsafe_allow_html=True,
@@ -269,7 +269,7 @@ if user_query:
                     )
 
                     context_blocks.append(
-                        f"--- Context {idx+1} | Source: {src_name} (Page {display_page}) ---\n{chunk['content']}"
+                        f"--- Context {idx + 1} | Source: {src_name} (Page {display_page}) ---\n{chunk['content']}"
                     )
                     total_context_len += len(chunk["content"])
 
@@ -390,7 +390,7 @@ if chat_history:
             srcs = []
             if chat.get("sources"):
                 for s in chat["sources"]:
-                    pct_str = f" [Match: {s['score']*100:.1f}%]" if "score" in s else ""
+                    pct_str = f" [Match: {s['score'] * 100:.1f}%]" if "score" in s else ""
                     srcs.append(f"{s['document']} (p. {s.get('page', s.get('pages', 'N/A'))}){pct_str}")
             csv_data.append(
                 {

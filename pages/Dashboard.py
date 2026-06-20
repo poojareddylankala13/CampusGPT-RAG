@@ -22,23 +22,23 @@ st.markdown(
     f"""
     <div class="metric-container">
         <div class="metric-card">
-            <div class="metric-val">{kpis['total_docs']}</div>
+            <div class="metric-val">{kpis["total_docs"]}</div>
             <div class="metric-label">Total Documents</div>
         </div>
         <div class="metric-card">
-            <div class="metric-val">{kpis['total_pages']}</div>
+            <div class="metric-val">{kpis["total_pages"]}</div>
             <div class="metric-label">Pages Processed</div>
         </div>
         <div class="metric-card">
-            <div class="metric-val">{kpis['total_chunks']}</div>
+            <div class="metric-val">{kpis["total_chunks"]}</div>
             <div class="metric-label">Chunks Generated</div>
         </div>
         <div class="metric-card">
-            <div class="metric-val">{kpis['total_questions']}</div>
+            <div class="metric-val">{kpis["total_questions"]}</div>
             <div class="metric-label">Questions Asked</div>
         </div>
         <div class="metric-card">
-            <div class="metric-val">{kpis['total_users']}</div>
+            <div class="metric-val">{kpis["total_users"]}</div>
             <div class="metric-label">Registered Users</div>
         </div>
     </div>

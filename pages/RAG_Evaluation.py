@@ -131,7 +131,7 @@ else:
     ].copy()
     table_data["retrieval_time"] = table_data["retrieval_time"].map(lambda x: f"{x:.3f}s")
     table_data["generation_time"] = table_data["generation_time"].map(lambda x: f"{x:.3f}s")
-    table_data["avg_similarity"] = table_data["avg_similarity"].map(lambda x: f"{x*100:.1f}%")
+    table_data["avg_similarity"] = table_data["avg_similarity"].map(lambda x: f"{x * 100:.1f}%")
     table_data.columns = [
         "Timestamp",
         "User Query",

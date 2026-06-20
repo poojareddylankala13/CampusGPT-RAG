@@ -195,7 +195,7 @@ def execute_rag_pipeline(query: str, settings: Dict[str, Any]) -> Dict[str, Any]
             unique_sources[src_name] = set()
         unique_sources[src_name].add(display_page)
 
-        context_blocks.append(f"--- Context {i+1} | Source: {src_name} (Page {display_page}) ---\n{chunk['content']}")
+        context_blocks.append(f"--- Context {i + 1} | Source: {src_name} (Page {display_page}) ---\n{chunk['content']}")
         total_context_len += len(chunk["content"])
 
     context_text = "\n\n".join(context_blocks)

@@ -73,7 +73,9 @@ def generate_rag_answer(query):
             unique_sources[source_name] = set()
         unique_sources[source_name].add(display_page)
 
-        context_blocks.append(f"--- Chunk {i+1} | Source: {source_name} (Page {display_page}) ---\n{chunk['content']}")
+        context_blocks.append(
+            f"--- Chunk {i + 1} | Source: {source_name} (Page {display_page}) ---\n{chunk['content']}"
+        )
 
     context_text = "\n\n".join(context_blocks)
 

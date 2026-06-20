@@ -92,8 +92,8 @@ with tab_docs:
             with col_info:
                 st.markdown(
                     f"""
-                    **{doc['name']}**
-                    *Pages*: {doc['page_count']} | *Chunks*: {doc['chunk_count']} | *Uploaded By*: {doc['uploaded_by_name'] or 'System'} | *Date*: {doc['upload_date']}
+                    **{doc["name"]}**
+                    *Pages*: {doc["page_count"]} | *Chunks*: {doc["chunk_count"]} | *Uploaded By*: {doc["uploaded_by_name"] or "System"} | *Date*: {doc["upload_date"]}
                 """
                 )
             with col_del:
@@ -129,8 +129,8 @@ with tab_users:
         with col_info:
             st.markdown(
                 f"""
-                👤 **{u['name']}** ({u['email']})
-                *Role*: `{u['role'].upper()}` | *Created*: {u['created_at']}
+                👤 **{u["name"]}** ({u["email"]})
+                *Role*: `{u["role"].upper()}` | *Created*: {u["created_at"]}
             """
             )
         with col_del:

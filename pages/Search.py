@@ -71,7 +71,7 @@ if search_query:
                     f"""
                     <div style="background-color: rgba(255, 255, 255, 0.9); padding: 18px; border: 1px solid rgba(27, 54, 93, 0.1); border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 10px;">
-                            <span style="font-weight: 700; color: #1b365d; font-size: 14px;">Match #{idx+1}</span>
+                            <span style="font-weight: 700; color: #1b365d; font-size: 14px;">Match #{idx + 1}</span>
                             <div>
                                 <span style="background-color: rgba(27, 54, 93, 0.08); padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; color: #1b365d; margin-right: 5px;">
                                     📄 {source_doc} (Page {display_page})
@@ -81,7 +81,7 @@ if search_query:
                                 </span>
                             </div>
                         </div>
-                        <div style="font-size: 14px; line-height: 1.6; color: #444; background-color: #fafafa; padding: 12px; border-radius: 6px; border-left: 3px solid #c5a059; white-space: pre-wrap;">{match['content']}</div>
+                        <div style="font-size: 14px; line-height: 1.6; color: #444; background-color: #fafafa; padding: 12px; border-radius: 6px; border-left: 3px solid #c5a059; white-space: pre-wrap;">{match["content"]}</div>
                     </div>
                 """,
                     unsafe_allow_html=True,
