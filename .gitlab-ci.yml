@@ -92,5 +92,5 @@ pytest-run:
 pytest-coverage:
   stage: coverage
   script:
-    - pytest
+    - pytest --cov=modules --cov-report=term-missing
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\%)/'
