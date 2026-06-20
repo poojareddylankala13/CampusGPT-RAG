@@ -1,4 +1,5 @@
 stages:
+  - metadata
   - lint
   - format
   - type_check
@@ -7,6 +8,14 @@ stages:
   - coverage
 
 image: python:3.13
+
+# --- METADATA STAGE ---
+update-project-metadata:
+  stage: metadata
+  before_script: []
+  script:
+    - curl --request PUT --header "JOB-TOKEN: $CI_JOB_TOKEN" --data "description=CampusGPT - Intelligent University Knowledge and Document RAG Assistant" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}" || true
+  allow_failure: true
 
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"

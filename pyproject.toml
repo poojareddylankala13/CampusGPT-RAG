@@ -47,4 +47,11 @@ min_confidence = 80
 paths = ["modules", "pages", "scripts", "tests"]
 sort_by_size = true
 
+[tool.poetry]
+name = "campusgpt"
+version = "1.0.0"
+description = "CampusGPT - Intelligent University Knowledge and Document RAG Assistant"
+authors = ["poojareddylankala13 <pooja@example.com>"]
+
+
 
