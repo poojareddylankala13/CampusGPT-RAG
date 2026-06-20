@@ -1,0 +1,77 @@
+stages:
+  - lint
+  - security
+  - test
+
+image: python:3.13
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - .venv/
+
+before_script:
+  - python -V
+  - python -m venv .venv
+  - source .venv/bin/activate
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+
+# --- LINT STAGE ---
+black-format:
+  stage: lint
+  script:
+    - black --check .
+
+ruff-lint:
+  stage: lint
+  script:
+    - ruff check .
+
+flake8-lint:
+  stage: lint
+  script:
+    - flake8 .
+
+pylint-lint:
+  stage: lint
+  script:
+    - pylint modules/
+
+vulture-dead-code:
+  stage: lint
+  script:
+    - vulture
+
+pyupgrade-check:
+  stage: lint
+  script:
+    - pre-commit run pyupgrade --all-files || true
+
+# --- SECURITY STAGE ---
+bandit-sast:
+  stage: security
+  script:
+    - bandit -c pyproject.toml -r modules/
+
+dependency-audit:
+  stage: security
+  script:
+    # Run pip-audit to check for vulnerable dependencies
+    - pip-audit --local
+
+secret-scanning:
+  stage: security
+  script:
+    # Use detect-secrets to check for committed keys and credentials
+    - detect-secrets scan --baseline .secrets.baseline
+
+# --- TEST STAGE ---
+pytest-coverage:
+  stage: test
+  script:
+    - pytest
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\%)/'

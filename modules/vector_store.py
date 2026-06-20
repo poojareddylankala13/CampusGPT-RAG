@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import List, Optional
 
 import streamlit as st
 from langchain_community.vectorstores import FAISS
@@ -38,7 +37,7 @@ def get_active_embeddings() -> CachedLocalEmbeddings:
     return CachedLocalEmbeddings(model_key=model_key)
 
 
-def load_vector_store() -> Optional[FAISS]:
+def load_vector_store() -> FAISS | None:
     """Loads the persisted FAISS vector index for the active embedding space.
 
     Returns:
@@ -77,7 +76,7 @@ def save_vector_store(vector_store: FAISS) -> bool:
         return False
 
 
-def add_chunks_to_store(chunks: List[Document]) -> bool:
+def add_chunks_to_store(chunks: list[Document]) -> bool:
     """Appends new document chunks to the FAISS index for the active embedding model."""
     if not chunks:
         return False
@@ -122,7 +121,7 @@ def rebuild_faiss_index() -> bool:
         logger.info("No documents registered in database. Index cleared.")
         return True
 
-    all_chunks: List[Document] = []
+    all_chunks: list[Document] = []
     for doc in db_docs:
         file_path = doc["file_path"]
         if os.path.exists(file_path):

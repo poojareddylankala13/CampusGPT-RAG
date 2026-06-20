@@ -27,7 +27,7 @@ def inject_custom_css():
     """Reads assets/styles.css and injects it into the Streamlit app page."""
     css_path = os.path.join(BASE_DIR, "assets", "styles.css")
     if os.path.exists(css_path):
-        with open(css_path, "r", encoding="utf-8") as f:
+        with open(css_path, encoding="utf-8") as f:
             css = f.read()
         st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 

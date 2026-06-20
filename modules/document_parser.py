@@ -1,7 +1,7 @@
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 import fitz  # PyMuPDF
 import pymupdf4llm
@@ -10,7 +10,7 @@ from langchain_core.documents import Document
 logger = logging.getLogger("CampusGPT.document_parser")
 
 
-def extract_pdf_markdown(pdf_path: str) -> List[Document]:
+def extract_pdf_markdown(pdf_path: str) -> list[Document]:
     """Parses a PDF file page-by-page using PyMuPDF4LLM.
 
     Args:
@@ -27,7 +27,7 @@ def extract_pdf_markdown(pdf_path: str) -> List[Document]:
     try:
         doc = fitz.open(pdf_path)
         page_count = len(doc)
-        documents: List[Document] = []
+        documents: list[Document] = []
 
         for page_num in range(page_count):
             # Extract markdown from a specific page (0-indexed in pymupdf4llm)
@@ -66,7 +66,7 @@ def extract_pdf_text(pdf_path: str) -> str:
         raise e
 
 
-def extract_document_metadata(pdf_path: str) -> Dict[str, Any]:
+def extract_document_metadata(pdf_path: str) -> dict[str, Any]:
     """Extracts standard file metadata.
 
     Args:

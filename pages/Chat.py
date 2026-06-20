@@ -1,6 +1,5 @@
 import io
 import time
-from typing import Dict, Set
 
 import pandas as pd
 import streamlit as st
@@ -10,7 +9,13 @@ from modules.auth import check_auth
 from modules.database import add_chat_entry, add_evaluation_log, clear_chat_history, get_chat_history
 from modules.feedback import submit_feedback
 from modules.llm_local import generate_local_response_stream, is_llama_available
-from modules.rag_pipeline import execute_rag_pipeline, execute_retrieval, get_query_cache_key, write_query_cache
+from modules.rag_pipeline import (
+    execute_rag_pipeline,
+    execute_retrieval,
+    get_query_cache_key,
+    lookup_query_cache,
+    write_query_cache,
+)
 from modules.ui import inject_custom_css, render_sidebar
 
 # 1. Auth Guard
@@ -180,7 +185,6 @@ if user_query:
     }
 
     # Check if this exact query is cached
-    from modules.rag_pipeline import get_query_cache_key, lookup_query_cache
 
     cache_key = get_query_cache_key(user_query, settings)
     cached_res = lookup_query_cache(cache_key)
@@ -248,7 +252,7 @@ if user_query:
                 st.rerun()
             else:
                 context_blocks = []
-                unique_sources: Dict[str, Set] = {}
+                unique_sources: dict[str, set] = {}
                 total_context_len = 0
                 sum_similarity = 0.0
                 db_sources = []

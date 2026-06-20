@@ -1,0 +1,6 @@
+[flake8]
+max-line-length = 120
+exclude = .git,.venv,venv,__pycache__,build,dist,htmlcov,.mypy_cache,.pytest_cache,.ruff_cache
+# Ignore E501 (line length handled by Black) and W503 (line break before binary operator)
+ignore = E501, W503, C901
+max-complexity = 15

@@ -3,7 +3,6 @@ import json
 import logging
 import os
 import sqlite3
-from typing import List, Optional, Tuple
 
 import streamlit as st
 from langchain_core.embeddings import Embeddings
@@ -106,7 +105,7 @@ class CachedLocalEmbeddings(Embeddings):
         """Returns the MD5 hash of a text string."""
         return hashlib.md5(text.encode("utf-8")).hexdigest()
 
-    def _lookup_cache(self, text_hash: str) -> Optional[List[float]]:
+    def _lookup_cache(self, text_hash: str) -> list[float] | None:
         """Checks if the embedding for a hash and model exists in cache."""
         conn = sqlite3.connect(CACHE_DB_PATH)
         cursor = conn.cursor()
@@ -116,11 +115,11 @@ class CachedLocalEmbeddings(Embeddings):
         row = cursor.fetchone()
         conn.close()
         if row:
-            val: List[float] = json.loads(row[0])
+            val: list[float] = json.loads(row[0])
             return val
         return None
 
-    def _write_cache(self, text_hash: str, vector: List[float]) -> None:
+    def _write_cache(self, text_hash: str, vector: list[float]) -> None:
         """Saves a generated embedding vector into the cache database."""
         conn = sqlite3.connect(CACHE_DB_PATH)
         cursor = conn.cursor()
@@ -135,11 +134,11 @@ class CachedLocalEmbeddings(Embeddings):
         finally:
             conn.close()
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
         """Generates embeddings for a batch of documents, utilizing the local SQLite cache."""
-        embeddings: List[Tuple[int, List[float]]] = []
-        uncached_texts: List[str] = []
-        uncached_indices: List[int] = []
+        embeddings: list[tuple[int, list[float]]] = []
+        uncached_texts: list[str] = []
+        uncached_indices: list[int] = []
 
         # 1. Lookup cached items
         for i, text in enumerate(texts):
@@ -169,7 +168,7 @@ class CachedLocalEmbeddings(Embeddings):
         embeddings.sort(key=lambda x: x[0])
         return [vector for _, vector in embeddings]
 
-    def embed_query(self, text: str) -> List[float]:
+    def embed_query(self, text: str) -> list[float]:
         """Generates embedding for a query, utilizing the local SQLite cache."""
         text_hash = self._get_hash(text)
         cached_vector = self._lookup_cache(text_hash)

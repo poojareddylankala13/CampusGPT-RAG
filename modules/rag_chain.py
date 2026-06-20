@@ -1,6 +1,5 @@
 import logging
 import os
-from typing import Dict, Set
 
 import streamlit as st
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -59,7 +58,7 @@ def generate_rag_answer(query):
 
     # 2. Format context for prompt
     context_blocks = []
-    unique_sources: Dict[str, Set] = {}
+    unique_sources: dict[str, set] = {}
 
     for i, chunk in enumerate(chunks):
         source_name = chunk["metadata"].get("source", "Unknown Document")

@@ -10,3 +10,35 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv", "venv"]
+skips = ["B101", "B303", "B324", "B110"]
+
+[tool.vulture]
+exclude = [".venv", "venv", "htmlcov", ".git", "__pycache__", ".mypy_cache", ".pytest_cache", ".ruff_cache"]
+ignore_names = [
+    "get_user_by_id",
+    "get_embeddings",
+    "generate_rag_answer",
+    "header",
+    "footer",
+    "setup_test_environment",
+    "return_value",
+    "dirs",
+    "col_btn",
+    "real_prefix",
+    "target",
+    "row_factory",
+    "gemini_api_key",
+    "user_name",
+    "user_email",
+    "user_role",
+    "args",
+    "kwargs"
+]
+min_confidence = 80
+paths = ["modules", "pages", "scripts", "tests"]
+sort_by_size = true
+
+

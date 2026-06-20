@@ -3,7 +3,7 @@ import json
 import logging
 import os
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from modules.database import add_evaluation_log
 from modules.embedding_manager import CachedLocalEmbeddings
@@ -34,7 +34,7 @@ def clear_query_cache() -> bool:
         return False
 
 
-def get_query_cache_key(query: str, settings: Dict[str, Any]) -> str:
+def get_query_cache_key(query: str, settings: dict[str, Any]) -> str:
     """Generates an MD5 hash key for caching RAG query responses."""
     # Serialize settings fields that affect output
     inputs = {
@@ -50,21 +50,21 @@ def get_query_cache_key(query: str, settings: Dict[str, Any]) -> str:
     return hashlib.md5(serialized.encode("utf-8")).hexdigest()
 
 
-def lookup_query_cache(cache_key: str) -> Optional[Dict[str, Any]]:
+def lookup_query_cache(cache_key: str) -> dict[str, Any] | None:
     """Loads a cached query response if it exists."""
     cache_path = os.path.join(QUERY_CACHE_DIR, f"{cache_key}.json")
     if os.path.exists(cache_path):
         try:
-            with open(cache_path, "r", encoding="utf-8") as f:
+            with open(cache_path, encoding="utf-8") as f:
                 logger.info(f"Query Cache Hit: {cache_key}")
-                res: Dict[str, Any] = json.load(f)
+                res: dict[str, Any] = json.load(f)
                 return res
         except Exception as e:
             logger.error(f"Failed to read query cache file: {e}")
     return None
 
 
-def write_query_cache(cache_key: str, response: Dict[str, Any]) -> None:
+def write_query_cache(cache_key: str, response: dict[str, Any]) -> None:
     """Saves a query response to the cache directory."""
     cache_path = os.path.join(QUERY_CACHE_DIR, f"{cache_key}.json")
     try:
@@ -78,7 +78,7 @@ def write_query_cache(cache_key: str, response: Dict[str, Any]) -> None:
 # --- Unified Retrieval Logic ---
 
 
-def execute_retrieval(query: str, settings: Dict[str, Any]) -> List[Dict[str, Any]]:
+def execute_retrieval(query: str, settings: dict[str, Any]) -> list[dict[str, Any]]:
     """Retrieves document chunks based on active model settings.
 
     Supports Similarity Search, MMR (Max Marginal Relevance), and similarity score filtering.
@@ -120,7 +120,7 @@ def execute_retrieval(query: str, settings: Dict[str, Any]) -> List[Dict[str, An
         candidates.append((doc, similarity))
 
     # 3. Retrieve documents based on method
-    retrieved_docs: List[Dict[str, Any]] = []
+    retrieved_docs: list[dict[str, Any]] = []
 
     if retrieval_method == "mmr":
         # Perform MMR retrieval
@@ -147,7 +147,7 @@ def execute_retrieval(query: str, settings: Dict[str, Any]) -> List[Dict[str, An
 # --- Unified RAG Execution Pipeline ---
 
 
-def execute_rag_pipeline(query: str, settings: Dict[str, Any]) -> Dict[str, Any]:
+def execute_rag_pipeline(query: str, settings: dict[str, Any]) -> dict[str, Any]:
     """Executes the complete RAG query pipeline.
 
     Args:
@@ -180,8 +180,8 @@ def execute_rag_pipeline(query: str, settings: Dict[str, Any]) -> Dict[str, Any]
         }
 
     # Format context and unique sources list
-    context_blocks: List[str] = []
-    unique_sources: Dict[str, set] = {}
+    context_blocks: list[str] = []
+    unique_sources: dict[str, set] = {}
     total_context_len = 0
     sum_similarity = 0.0
 
@@ -201,7 +201,7 @@ def execute_rag_pipeline(query: str, settings: Dict[str, Any]) -> Dict[str, Any]
     context_text = "\n\n".join(context_blocks)
     avg_similarity = sum_similarity / len(chunks) if chunks else 0.0
 
-    formatted_sources: List[Dict[str, Any]] = []
+    formatted_sources: list[dict[str, Any]] = []
     for src, pages in unique_sources.items():
         sorted_pages = sorted(list(pages))
         pages_str = ", ".join(str(p) for p in sorted_pages)

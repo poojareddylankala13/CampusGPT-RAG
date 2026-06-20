@@ -1,0 +1,27 @@
+[MASTER]
+ignore=.git,.venv,venv,__pycache__,build,dist,htmlcov,.mypy_cache,.pytest_cache,.ruff_cache
+load-plugins=
+
+[MESSAGES CONTROL]
+# Disable formatting messages already handled by Black/Ruff
+# C0301: line-too-long (handled by Black/Ruff)
+# C0114: missing-module-docstring
+# C0115: missing-class-docstring
+# C0116: missing-function-docstring
+# W0511: todo (TODO comments)
+# R0903: too-few-public-methods
+disable=C0301,C0114,C0115,C0116,W0511,R0903
+
+[REPORTS]
+output-format=text
+reports=no
+
+[BASIC]
+good-names=i,j,k,ex,Run,_,db,conn,df,k_val
+
+[FORMAT]
+max-line-length=120
+
+[DESIGN]
+max-args=8
+max-attributes=10

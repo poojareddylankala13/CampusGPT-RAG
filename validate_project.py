@@ -46,6 +46,11 @@ def validate_structure() -> bool:
         "CODE_OF_CONDUCT.md",
         "AGENTS.md",
         ".editorconfig",
+        "CONTRIBUTING.md",
+        "USER_MANUAL.md",
+        ".gitlab-ci.yml",
+        "cliff.toml",
+        ".secrets.baseline",
     ]
     print("\n📁 Checking required root files:")
     for file in required_files:
