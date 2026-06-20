@@ -1,34 +1,39 @@
 import bcrypt
 import streamlit as st
-from modules.database import get_user_by_email, add_user
+
+from modules.database import add_user, get_user_by_email
+
 
 def hash_password(password: str) -> str:
     """Hashes a plaintext password using bcrypt."""
     salt = bcrypt.gensalt()
-    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
+
 
 def verify_password(password: str, hashed_password: str) -> bool:
     """Verifies a plaintext password against a bcrypt hash."""
     try:
-        return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+        return bcrypt.checkpw(password.encode("utf-8"), hashed_password.encode("utf-8"))
     except Exception:
         return False
+
 
 def authenticate_user(email, password):
     """Checks user credentials and returns the user Row if valid, else None."""
     user = get_user_by_email(email)
     if user:
-        if verify_password(password, user['password_hash']):
+        if verify_password(password, user["password_hash"]):
             return user
     return None
 
-def register_new_user(name, email, password, role='user'):
+
+def register_new_user(name, email, password, role="user"):
     """Registers a new user after hashing the password."""
     # Check if user already exists
     existing = get_user_by_email(email)
     if existing:
         return "exists"
-    
+
     pw_hash = hash_password(password)
     user_id = add_user(name, email, pw_hash, role)
     if user_id:
@@ -36,14 +41,16 @@ def register_new_user(name, email, password, role='user'):
     else:
         return "error"
 
+
 def check_auth():
     """Streamlit auth guard. Put at the top of protected pages.
-    
+
     Stops page execution and displays a styled warning if user is not logged in.
     """
     if "authenticated" not in st.session_state or not st.session_state.authenticated:
         # Inject custom styles for access denied container
-        st.markdown("""
+        st.markdown(
+            """
             <style>
             .access-denied-container {
                 display: flex;
@@ -88,5 +95,7 @@ def check_auth():
                 <p class="access-denied-text">You must be logged in to view this page. Please log in from the main portal.</p>
                 <a href="/" target="_self" class="access-denied-btn">Go to Login Page</a>
             </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
         st.stop()

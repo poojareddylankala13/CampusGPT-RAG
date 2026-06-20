@@ -1,12 +1,12 @@
-import sqlite3
-import os
 import json
-from datetime import datetime
+import os
+import sqlite3
 
 # Setup paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_DIR = os.path.join(BASE_DIR, 'database')
-DB_PATH = os.path.join(DB_DIR, 'campusgpt.db')
+DB_DIR = os.path.join(BASE_DIR, "database")
+DB_PATH = os.path.join(DB_DIR, "campusgpt.db")
+
 
 def get_connection():
     """Establishes and returns a database connection with Row factory."""
@@ -15,13 +15,15 @@ def get_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+
 def init_db():
     """Initializes the SQLite database tables and seeds the admin user if needed."""
     conn = get_connection()
     cursor = conn.cursor()
 
     # Create Users table
-    cursor.execute("""
+    cursor.execute(
+        """
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -30,10 +32,12 @@ def init_db():
         role TEXT NOT NULL DEFAULT 'user',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
-    """)
+    """
+    )
 
     # Create Documents table
-    cursor.execute("""
+    cursor.execute(
+        """
     CREATE TABLE IF NOT EXISTS documents (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT UNIQUE NOT NULL,
@@ -45,10 +49,12 @@ def init_db():
         uploaded_by INTEGER,
         FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
     )
-    """)
+    """
+    )
 
     # Create Chat History table
-    cursor.execute("""
+    cursor.execute(
+        """
     CREATE TABLE IF NOT EXISTS chat_history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
@@ -58,10 +64,12 @@ def init_db():
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
-    """)
+    """
+    )
 
     # Create Feedback table
-    cursor.execute("""
+    cursor.execute(
+        """
     CREATE TABLE IF NOT EXISTS feedback (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         chat_id INTEGER NOT NULL,
@@ -72,10 +80,12 @@ def init_db():
         FOREIGN KEY (chat_id) REFERENCES chat_history(id) ON DELETE CASCADE,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
-    """)
+    """
+    )
 
     # Create Searches table (semantic searches)
-    cursor.execute("""
+    cursor.execute(
+        """
     CREATE TABLE IF NOT EXISTS searches (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL,
@@ -83,10 +93,12 @@ def init_db():
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
-    """)
+    """
+    )
 
     # Create RAG evaluations log table
-    cursor.execute("""
+    cursor.execute(
+        """
     CREATE TABLE IF NOT EXISTS rag_evaluations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         query TEXT NOT NULL,
@@ -98,7 +110,8 @@ def init_db():
         context_length INTEGER NOT NULL,
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
-    """)
+    """
+    )
 
     conn.commit()
 
@@ -108,38 +121,41 @@ def init_db():
         # Import inside here to prevent circular imports if helper is in auth.py
         import bcrypt
         from dotenv import load_dotenv
-        load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-        admin_email = os.getenv('ADMIN_EMAIL', 'admin@campusgpt.edu')
-        admin_password = os.getenv('ADMIN_PASSWORD', 'admin123')
-        admin_name = os.getenv('ADMIN_NAME', 'CampusGPT Admin')
+        load_dotenv(os.path.join(BASE_DIR, ".env"))
+
+        admin_email = os.getenv("ADMIN_EMAIL", "admin@campusgpt.edu")
+        admin_password = os.getenv("ADMIN_PASSWORD", "admin123")
+        admin_name = os.getenv("ADMIN_NAME", "CampusGPT Admin")
 
         # Hash default admin password
         salt = bcrypt.gensalt()
-        pw_hash = bcrypt.hashpw(admin_password.encode('utf-8'), salt).decode('utf-8')
+        pw_hash = bcrypt.hashpw(admin_password.encode("utf-8"), salt).decode("utf-8")
 
         try:
             cursor.execute(
                 "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'admin')",
-                (admin_name, admin_email, pw_hash)
+                (admin_name, admin_email, pw_hash),
             )
             conn.commit()
             print(f"Database initialized. Seeded default admin account: {admin_email}")
         except sqlite3.IntegrityError:
-            pass # Admin already exists with that email
+            pass  # Admin already exists with that email
 
     conn.close()
 
+
 # --- User Management Operations ---
 
-def add_user(name, email, password_hash, role='user'):
+
+def add_user(name, email, password_hash, role="user"):
     """Adds a new user to the system."""
     conn = get_connection()
     cursor = conn.cursor()
     try:
         cursor.execute(
             "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)",
-            (name, email, password_hash, role)
+            (name, email, password_hash, role),
         )
         conn.commit()
         return cursor.lastrowid
@@ -147,6 +163,7 @@ def add_user(name, email, password_hash, role='user'):
         return None
     finally:
         conn.close()
+
 
 def get_user_by_email(email):
     """Retrieves user info by email."""
@@ -157,6 +174,7 @@ def get_user_by_email(email):
     conn.close()
     return user
 
+
 def get_user_by_id(user_id):
     """Retrieves user info by user ID."""
     conn = get_connection()
@@ -165,6 +183,7 @@ def get_user_by_id(user_id):
     user = cursor.fetchone()
     conn.close()
     return user
+
 
 def list_users():
     """Lists all users in the system."""
@@ -175,6 +194,7 @@ def list_users():
     conn.close()
     return users
 
+
 def delete_user(user_id):
     """Deletes a user by ID."""
     conn = get_connection()
@@ -183,7 +203,9 @@ def delete_user(user_id):
     conn.commit()
     conn.close()
 
+
 # --- Document Operations ---
+
 
 def add_document(name, file_path, page_count, file_size, chunk_count, uploaded_by):
     """Adds an uploaded document and metadata."""
@@ -193,7 +215,7 @@ def add_document(name, file_path, page_count, file_size, chunk_count, uploaded_b
         cursor.execute(
             """INSERT INTO documents (name, file_path, page_count, file_size, chunk_count, uploaded_by)
                VALUES (?, ?, ?, ?, ?, ?)""",
-            (name, file_path, page_count, file_size, chunk_count, uploaded_by)
+            (name, file_path, page_count, file_size, chunk_count, uploaded_by),
         )
         conn.commit()
         return cursor.lastrowid
@@ -201,6 +223,7 @@ def add_document(name, file_path, page_count, file_size, chunk_count, uploaded_b
         return None
     finally:
         conn.close()
+
 
 def get_document_by_name(name):
     """Gets document details by filename."""
@@ -211,19 +234,23 @@ def get_document_by_name(name):
     conn.close()
     return doc
 
+
 def list_documents():
     """Lists all uploaded documents."""
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT d.id, d.name, d.file_path, d.upload_date, d.page_count, d.file_size, d.chunk_count, u.name as uploaded_by_name 
+    cursor.execute(
+        """
+        SELECT d.id, d.name, d.file_path, d.upload_date, d.page_count, d.file_size, d.chunk_count, u.name as uploaded_by_name
         FROM documents d
         LEFT JOIN users u ON d.uploaded_by = u.id
         ORDER BY d.upload_date DESC
-    """)
+    """
+    )
     docs = cursor.fetchall()
     conn.close()
     return docs
+
 
 def delete_document(doc_id):
     """Deletes a document from database and returns details for file deletion."""
@@ -237,7 +264,9 @@ def delete_document(doc_id):
     conn.close()
     return doc
 
+
 # --- Chat History & Feedback ---
+
 
 def add_chat_entry(user_id, question, answer, sources):
     """Saves a conversation turn to SQLite database. sources should be a list/JSON."""
@@ -246,38 +275,42 @@ def add_chat_entry(user_id, question, answer, sources):
     sources_json = json.dumps(sources)
     cursor.execute(
         "INSERT INTO chat_history (user_id, question, answer, sources) VALUES (?, ?, ?, ?)",
-        (user_id, question, answer, sources_json)
+        (user_id, question, answer, sources_json),
     )
     conn.commit()
     chat_id = cursor.lastrowid
     conn.close()
     return chat_id
 
+
 def get_chat_history(user_id, limit=50):
     """Loads chat history for a specific user."""
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(
-        """SELECT id, question, answer, sources, timestamp 
-           FROM chat_history 
-           WHERE user_id = ? 
-           ORDER BY timestamp ASC 
+        """SELECT id, question, answer, sources, timestamp
+           FROM chat_history
+           WHERE user_id = ?
+           ORDER BY timestamp ASC
            LIMIT ?""",
-        (user_id, limit)
+        (user_id, limit),
     )
     rows = cursor.fetchall()
     conn.close()
 
     history = []
     for r in rows:
-        history.append({
-            "id": r["id"],
-            "question": r["question"],
-            "answer": r["answer"],
-            "sources": json.loads(r["sources"]),
-            "timestamp": r["timestamp"]
-        })
+        history.append(
+            {
+                "id": r["id"],
+                "question": r["question"],
+                "answer": r["answer"],
+                "sources": json.loads(r["sources"]),
+                "timestamp": r["timestamp"],
+            }
+        )
     return history
+
 
 def clear_chat_history(user_id):
     """Deletes chat history for a user."""
@@ -286,6 +319,7 @@ def clear_chat_history(user_id):
     cursor.execute("DELETE FROM chat_history WHERE user_id = ?", (user_id,))
     conn.commit()
     conn.close()
+
 
 def add_feedback(chat_id, user_id, rating, comments=None):
     """Saves user feedback on a response (👍 or 👎)."""
@@ -297,17 +331,19 @@ def add_feedback(chat_id, user_id, rating, comments=None):
     if existing:
         cursor.execute(
             "UPDATE feedback SET rating = ?, comments = ?, timestamp = CURRENT_TIMESTAMP WHERE id = ?",
-            (rating, comments, existing["id"])
+            (rating, comments, existing["id"]),
         )
     else:
         cursor.execute(
             "INSERT INTO feedback (chat_id, user_id, rating, comments) VALUES (?, ?, ?, ?)",
-            (chat_id, user_id, rating, comments)
+            (chat_id, user_id, rating, comments),
         )
     conn.commit()
     conn.close()
 
+
 # --- Semantic Search Logging ---
+
 
 def add_search(user_id, query):
     """Logs a semantic search query for analytics."""
@@ -317,7 +353,9 @@ def add_search(user_id, query):
     conn.commit()
     conn.close()
 
+
 # --- KPIs & Analytics Queries ---
+
 
 def get_kpis():
     """Computes high-level KPIs for the dashboard."""
@@ -346,8 +384,9 @@ def get_kpis():
         "total_pages": total_pages,
         "total_chunks": total_chunks,
         "total_questions": total_questions,
-        "total_users": total_users
+        "total_users": total_users,
     }
+
 
 def get_analytics_metrics():
     """Retrieves deep analytics queries for graphing."""
@@ -359,40 +398,48 @@ def get_analytics_metrics():
     docs_storage = [dict(row) for row in cursor.fetchall()]
 
     # Questions asked over time (grouped by date)
-    cursor.execute("""
-        SELECT DATE(timestamp) as date_val, COUNT(*) as count_val 
-        FROM chat_history 
-        GROUP BY date_val 
+    cursor.execute(
+        """
+        SELECT DATE(timestamp) as date_val, COUNT(*) as count_val
+        FROM chat_history
+        GROUP BY date_val
         ORDER BY date_val ASC
-    """)
+    """
+    )
     questions_by_day = [dict(row) for row in cursor.fetchall()]
 
     # Searches over time (grouped by date)
-    cursor.execute("""
-        SELECT DATE(timestamp) as date_val, COUNT(*) as count_val 
-        FROM searches 
-        GROUP BY date_val 
+    cursor.execute(
+        """
+        SELECT DATE(timestamp) as date_val, COUNT(*) as count_val
+        FROM searches
+        GROUP BY date_val
         ORDER BY date_val ASC
-    """)
+    """
+    )
     searches_by_day = [dict(row) for row in cursor.fetchall()]
 
     # User activity (number of questions by user)
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT u.name, COUNT(ch.id) as count_val
         FROM chat_history ch
         JOIN users u ON ch.user_id = u.id
         GROUP BY u.name
         ORDER BY count_val DESC
         LIMIT 10
-    """)
+    """
+    )
     user_activity = [dict(row) for row in cursor.fetchall()]
 
     # Feedback score breakdown
-    cursor.execute("""
-        SELECT rating, COUNT(*) as count_val 
-        FROM feedback 
+    cursor.execute(
+        """
+        SELECT rating, COUNT(*) as count_val
+        FROM feedback
         GROUP BY rating
-    """)
+    """
+    )
     feedback_scores = [dict(row) for row in cursor.fetchall()]
 
     conn.close()
@@ -402,10 +449,12 @@ def get_analytics_metrics():
         "questions_by_day": questions_by_day,
         "searches_by_day": searches_by_day,
         "user_activity": user_activity,
-        "feedback_scores": feedback_scores
+        "feedback_scores": feedback_scores,
     }
 
+
 # --- RAG Evaluation Log Operations ---
+
 
 def add_evaluation_log(query, ai_mode, retrieval_time, generation_time, chunk_count, avg_similarity, context_length):
     """Logs a performance evaluation of a RAG query execution."""
@@ -413,10 +462,10 @@ def add_evaluation_log(query, ai_mode, retrieval_time, generation_time, chunk_co
     cursor = conn.cursor()
     try:
         cursor.execute(
-            """INSERT INTO rag_evaluations 
+            """INSERT INTO rag_evaluations
                (query, ai_mode, retrieval_time, generation_time, chunk_count, avg_similarity, context_length)
                VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (query, ai_mode, retrieval_time, generation_time, chunk_count, avg_similarity, context_length)
+            (query, ai_mode, retrieval_time, generation_time, chunk_count, avg_similarity, context_length),
         )
         conn.commit()
         return cursor.lastrowid
@@ -425,6 +474,7 @@ def add_evaluation_log(query, ai_mode, retrieval_time, generation_time, chunk_co
         return None
     finally:
         conn.close()
+
 
 def get_evaluation_metrics_logs(limit=100):
     """Retrieves execution metrics logs for evaluations dashboard."""
@@ -435,7 +485,7 @@ def get_evaluation_metrics_logs(limit=100):
            FROM rag_evaluations
            ORDER BY timestamp DESC
            LIMIT ?""",
-        (limit,)
+        (limit,),
     )
     rows = cursor.fetchall()
     conn.close()

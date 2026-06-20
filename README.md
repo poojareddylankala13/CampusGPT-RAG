@@ -121,3 +121,58 @@ streamlit run app.py
 3.  **Query Caching**: Turning on query caching stores generated results. The exact same question asked with the same parameters loads instantly, bypassing inference execution.
 4.  **Local Context Management**: When querying local models, context text is pruned to fit within the model's GGUF context window (e.g. 2048 or 4096 tokens) to prevent out-of-memory issues.
 5.  **Offline Summaries**: Summaries generated in Local mode slice the text to the first 5000 characters, enabling clean offline outlines without overloading local model buffers.
+
+---
+
+## 🛠️ Quality Control & Developer Tooling
+
+CampusGPT includes strict code quality gates, automated testing, formatting, and type-checking checks.
+
+### 1. Code Formatting (Black)
+Auto-format the codebase to comply with standard PEP 8 requirements:
+```bash
+black .
+```
+
+### 2. Linting (Ruff)
+Run fast code linting checks (cleans unused imports, verifies sorted import blocks):
+```bash
+ruff check .
+# Automatically fix fixable warnings:
+ruff check --fix .
+```
+
+### 3. Static Type Checking (MyPy)
+Validate type annotations on parameters and return signatures across core modules:
+```bash
+mypy --explicit-package-bases modules/
+```
+
+### 4. Running Unit Tests (Pytest)
+Run the automated test suite with test database isolation and code coverage reports:
+```bash
+python -m pytest
+```
+
+### 5. Running Environment Validation
+Check database schema integrity, GGUF paths, and upload directory permissions:
+```bash
+python scripts/validate_project.py
+```
+
+### 6. Developer Tasks via Makefile
+If you have `make` installed (Linux, macOS, or git-bash / mingw on Windows):
+*   `make format` - Format code with Black
+*   `make lint` - Lint check with Ruff
+*   `make typecheck` - Static type check with MyPy
+*   `make test` - Execute unit tests with Pytest
+*   `make validate` - Validate local environment health
+*   `make all` - Execute all quality checks sequentially
+
+### 7. Setting Up Git Pre-Commit Hooks
+Enable automated quality checks before every commit:
+```bash
+pre-commit install
+```
+This registers pre-commit hooks for Black, Ruff, and MyPy. Every subsequent `git commit` automatically formats, lints, and typechecks the staged files before allowing the commit to proceed.
+

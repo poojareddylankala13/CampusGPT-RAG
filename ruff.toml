@@ -1,0 +1,10 @@
+line-length = 120
+target-version = "py312"
+
+[lint]
+# Enable Pycodestyle (E, W), Pyflakes (F), and Isort (I)
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[lint.isort]
+combine-as-imports = true

@@ -1,7 +1,8 @@
 import streamlit as st
+
 from modules.auth import check_auth
-from modules.ui import inject_custom_css, render_sidebar
 from modules.database import get_kpis
+from modules.ui import inject_custom_css, render_sidebar
 
 # 1. Check Auth (redirects/stops if not logged in)
 check_auth()
@@ -17,7 +18,8 @@ st.markdown("Overview of university documentation indexing status and system usa
 kpis = get_kpis()
 
 # 4. Render Metric Cards in custom styled layout
-st.markdown(f"""
+st.markdown(
+    f"""
     <div class="metric-container">
         <div class="metric-card">
             <div class="metric-val">{kpis['total_docs']}</div>
@@ -40,7 +42,9 @@ st.markdown(f"""
             <div class="metric-label">Registered Users</div>
         </div>
     </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # 5. Quick actions dashboard
 st.markdown("### ⚡ Quick Insights")
