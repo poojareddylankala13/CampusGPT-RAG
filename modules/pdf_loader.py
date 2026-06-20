@@ -1,13 +1,13 @@
 import os
 import logging
-from langchain_community.document_loaders import PyPDFLoader
+from modules.document_parser import extract_pdf_markdown
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("CampusGPT.pdf_loader")
 
 def validate_and_load_pdf(file_path: str):
-    """Loads and extracts text from a PDF file using PyPDFLoader.
+    """Loads and extracts text from a PDF file using PyMuPDF4LLM.
     
     Performs basic validation on the file before reading.
     Returns:
@@ -25,9 +25,8 @@ def validate_and_load_pdf(file_path: str):
         raise ValueError("Only PDF files are supported.")
 
     try:
-        logger.info(f"Loading and parsing PDF: {file_path}")
-        loader = PyPDFLoader(file_path)
-        docs = loader.load()
+        logger.info(f"Loading and parsing PDF using PyMuPDF4LLM: {file_path}")
+        docs = extract_pdf_markdown(file_path)
         
         if not docs:
             raise ValueError("The PDF contains no readable text pages.")

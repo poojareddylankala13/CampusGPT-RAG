@@ -85,6 +85,21 @@ def init_db():
     )
     """)
 
+    # Create RAG evaluations log table
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS rag_evaluations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        query TEXT NOT NULL,
+        ai_mode TEXT NOT NULL,
+        retrieval_time REAL NOT NULL,
+        generation_time REAL NOT NULL,
+        chunk_count INTEGER NOT NULL,
+        avg_similarity REAL NOT NULL,
+        context_length INTEGER NOT NULL,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
     conn.commit()
 
     # Seed Admin Account if it doesn't exist
@@ -389,3 +404,39 @@ def get_analytics_metrics():
         "user_activity": user_activity,
         "feedback_scores": feedback_scores
     }
+
+# --- RAG Evaluation Log Operations ---
+
+def add_evaluation_log(query, ai_mode, retrieval_time, generation_time, chunk_count, avg_similarity, context_length):
+    """Logs a performance evaluation of a RAG query execution."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            """INSERT INTO rag_evaluations 
+               (query, ai_mode, retrieval_time, generation_time, chunk_count, avg_similarity, context_length)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (query, ai_mode, retrieval_time, generation_time, chunk_count, avg_similarity, context_length)
+        )
+        conn.commit()
+        return cursor.lastrowid
+    except Exception as e:
+        print(f"Error adding evaluation log: {e}")
+        return None
+    finally:
+        conn.close()
+
+def get_evaluation_metrics_logs(limit=100):
+    """Retrieves execution metrics logs for evaluations dashboard."""
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """SELECT id, query, ai_mode, retrieval_time, generation_time, chunk_count, avg_similarity, context_length, timestamp
+           FROM rag_evaluations
+           ORDER BY timestamp DESC
+           LIMIT ?""",
+        (limit,)
+    )
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]

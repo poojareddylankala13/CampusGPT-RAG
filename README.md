@@ -1,21 +1,27 @@
-# CampusGPT – AI-Powered University Knowledge Assistant
+# CampusGPT – Local-First AI-Powered University Knowledge Assistant
 
-**CampusGPT** is a complete, production-ready Retrieval-Augmented Generation (RAG) application designed to help students, faculty, and university staff interact with university documentation through an AI-powered chat interface. 
+**CampusGPT** is a production-ready Retrieval-Augmented Generation (RAG) application that supports both cloud-based (Gemini API) and fully offline (Llama.cpp + Local Embeddings) document question answering. 
 
-Users can upload official university PDF documents (such as academic calendars, student handbooks, syllabi, and recruitment policies), search them semantically, query them using natural language, and retrieve responses grounded in retrieved context with source citations.
+Users can upload official university PDF documents (such as academic calendars, student handbooks, syllabi, and recruitment policies), search them semantically, query them using natural language, and retrieve answers grounded in context with detailed source citations, similarity scores, and document previews.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack & local Architecture
 
-*   **Frontend & Layout**: Streamlit (with custom HSL university-branded styling)
-*   **Vector Search & Indexing**: FAISS (persisted locally)
-*   **LLM Engine**: Gemini 2.5 Flash (via LangChain Google GenAI API)
-*   **Embedding Model**: HuggingFace BAAI/bge-small-en-v1.5
+*   **Frontend**: Streamlit (with HSL university-branded styling)
+*   **Markdown Extraction**: `pymupdf4llm` (PyMuPDF) for clean table and structural parsing
+*   **Vector Search & Indexing**: FAISS partitioned by embedding dimension space
+*   **LLM Options**:
+    *   *Cloud Mode*: Gemini 2.5 Flash (via LangChain Google GenAI API)
+    *   *Local Mode*: GGUF Local Models via Llama.cpp (`llama-cpp-python`)
+*   **Embedding Options**:
+    *   *BGE Small*: `BAAI/bge-small-en-v1.5`
+    *   *MiniLM*: `sentence-transformers/all-MiniLM-L6-v2`
 *   **Relational Database**: SQLite (local schema storage)
-*   **PDF Processing**: PyPDFLoader (LangChain Community)
-*   **Password Cryptography**: Bcrypt (SHA-256 equivalent hashing)
-*   **Analytics Graphing**: Plotly Express & Graph Objects
+*   **Performance Cache**:
+    *   *Embedding Cache*: Local SQLite-based vector cache (`cache/embeddings/`)
+    *   *Query Cache*: Hash-mapped JSON-based query response cache (`cache/queries/`)
+*   **Analytics & Evaluation**: Plotly Express dashboards comparing latencies and feedback
 
 ---
 
@@ -26,107 +32,92 @@ CampusGPT/
 │
 ├── app.py                     # Entry point & authentication form
 ├── requirements.txt           # Python application dependencies
-├── README.md                  # Set up and user guide
+├── README.md                  # Setup and operations guide
 ├── .env.example               # Template for environment settings
 │
 ├── database/
-│   └── campusgpt.db           # Auto-generated SQLite database
+│   └── campusgpt.db           # SQLite database (history, users, metrics)
+│
+├── models/                    # Store GGUF local model weight files
+│   └── (e.g. qwen3.gguf)
 │
 ├── data/
-│   ├── uploads/               # Store uploaded PDF files
-│   └── faiss_index/           # Persistent FAISS database indexes
+│   ├── uploads/               # Uploaded PDF files
+│   └── faiss_index/
+│       ├── bge-small/         # FAISS index for BGE-small embeddings
+│       └── minilm/            # FAISS index for MiniLM embeddings
+│
+├── cache/
+│   ├── embeddings/            # SQLite embedding vector cache db
+│   └── queries/               # JSON query response cache logs
 │
 ├── assets/
 │   └── styles.css             # Injectable global CSS styling
 │
 ├── modules/                   # Backend modules & business logic
+│   ├── document_parser.py     # PyMuPDF4LLM markdown page parser
+│   ├── embedding_manager.py   # Embedding loader and caching wrappers
+│   ├── llm_local.py           # Llama-cpp loader, streaming generator
+│   ├── rag_pipeline.py        # MMR/Similarity retrievals & query cache
 │   ├── auth.py                # bcrypt hashing, user login & auth guards
-│   ├── database.py            # sqlite queries, user & doc schema, metrics
-│   ├── pdf_loader.py          # PyPDFLoader wrappers with validations
-│   ├── chunking.py            # RecursiveCharacterTextSplitter (1000/200)
-│   ├── embeddings.py          # Cached HuggingFace BGE embeddings
-│   ├── vector_store.py        # FAISS loading, saving, and index rebuilding
-│   ├── retriever.py           # Similarity score computation (cosine conversions)
-│   ├── rag_chain.py           # LangChain system prompt setup & Gemini executor
-│   ├── summarizer.py          # Full-text document summary compiler via Gemini
-│   ├── semantic_search.py     # Similarity querying and logging
-│   ├── analytics.py           # Plotly graph formatter
-│   └── feedback.py            # SQLite 👍/👎 feedback submissions helper
+│   ├── database.py            # sqlite queries, evaluations table
+│   ├── pdf_loader.py          # Redirects loading to document_parser
+│   ├── chunking.py            # Text splitter logic (1000/200)
+│   ├── vector_store.py        # Model-partitioned FAISS index manager
+│   ├── retriever.py           # Similarity score computation
+│   ├── summarizer.py          # Cloud/Offline document summary compiler
+│   ├── analytics.py           # Plotly dashboard formatter
+│   └── feedback.py            # SQLite feedback registrar
 │
-├── pages/                     # Streamlit multi-page dashboard views
-│   ├── Dashboard.py           # Global system KPIs metric cards
-│   ├── Chat.py                # Conversational RAG assistant with exports & rating
-│   ├── Upload.py              # Drag-and-drop document upload and parsing logs
-│   ├── Search.py              # Text similarity match tool with scoring
-│   ├── Summarize.py           # Single-document key highlights and exports
-│   ├── Analytics.py           # Charts monitoring searches, storage & feedback
-│   └── Admin.py               # Manage files/users, rebuild indices, zip codebase
-│
-└── sample_documents/          # Auto-generated test PDFs
+└── pages/                     # Streamlit multi-page views
 ```
 
 ---
 
-## 🚀 Quick Start & Installation
+## 🚀 Local Installation & Offline Setup
 
-### 1. Clone or Extract the Project
-Ensure the project structure is extracted into your working directory.
-
-### 2. Install Python Dependencies
-It is recommended to use a virtual environment:
+### 1. Configure the Environment
+Ensure Python 3.10 to 3.13 is installed, then set up your environment:
 ```bash
 python -m venv .venv
-# On Windows (PowerShell):
-.venv\Scripts\Activate.ps1
-# On Linux/macOS:
-source .venv/bin/activate
+# Activate:
+.venv\Scripts\Activate.ps1   # Windows PowerShell
+source .venv/bin/activate    # Linux/macOS
 
 pip install -r requirements.txt
 ```
 
-### 3. Setup Configuration (`.env`)
-Create a `.env` file in the root directory by copying the template:
+### 2. GGUF Model Setup
+To use the fully local-first "Llama.cpp" mode, download a GGUF model and save it in the `models/` folder. We recommend:
+*   **Qwen2.5 3B Instruct GGUF** (Highly Recommended for accuracy):
+    *   Download [qwen2.5-3b-instruct-q4_k_m.gguf](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF) (~2.2 GB) and place it in the `models/` directory.
+*   **Phi-4 Mini 3.8B GGUF**:
+    *   Download [phi-4-mini-Q4_K_M.gguf](https://huggingface.co/bartowski/phi-4-mini-GGUF) (~2.4 GB) and place it in the `models/` directory.
+
+### 3. Setting Up `llama-cpp-python` on Windows
+The `requirements.txt` file installs `llama-cpp-python`. On Windows, if installing from source fails due to missing C++ compilers, you can install prebuilt wheels instead.
+Open a terminal in your activated virtual environment and install a precompiled CPU-only wheel:
 ```bash
-copy .env.example .env
+pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cpu
 ```
-Open `.env` and fill in your Gemini API Key. You can get one for free at the [Google AI Studio](https://aistudio.google.com/).
+*(For Nvidia GPU hardware acceleration, configure CUDA compiler paths and build with CMake arguments as outlined in the [llama-cpp-python documentation](https://github.com/abetlen/llama-cpp-python)).*
 
-```ini
-GEMINI_API_KEY=AIzaSy...your_actual_key_here
-ADMIN_EMAIL=admin@campusgpt.edu
-ADMIN_PASSWORD=admin123
-ADMIN_NAME=CampusGPT Admin
-```
-
-### 4. Create Sample Documents
-Generate the professional university sample PDFs to use for indexing tests:
-```bash
-python create_samples.py
-```
-This will compile four university-style PDFs (Handbook, Calendar, Placement, Syllabus) under `sample_documents/`.
-
-### 5. Launch CampusGPT
-Start the Streamlit application:
+### 4. Running the Application
+Launch the app:
 ```bash
 streamlit run app.py
 ```
-
-The application will launch in your browser (typically at `http://localhost:8501`).
-
----
-
-## 🔑 Default Credentials
-
-On database initialization, the system seeds a default admin account. You can log in using:
-*   **Email**: `admin@campusgpt.edu`
-*   **Password**: `admin123`
-
-You can register new standard accounts via the registration form on the login portal. Standard accounts can access all features except for the **Admin Panel**.
+*   Log in using the seeded default admin: `admin@campusgpt.edu` / `admin123`.
+*   Go to **Settings** in the sidebar.
+*   Switch **Active LLM Mode** to "Local Llama.cpp Mode".
+*   Go to **Models** in the sidebar and choose your GGUF model file.
 
 ---
 
-## 💡 Important Design Notes
+## ⚡ Performance Optimization Guide
 
-1.  **Index Rebuild on Deletion**: Since vector indexing relies on static distance matching, deleting a document from the system in the **Admin Panel** triggers a silent background FAISS rebuild from all remaining document files on disk. This guarantees search integrity.
-2.  **Cosine Similarity Conversion**: HuggingFace BGE models perform best with normalized vectors. FAISS returns L2 distances. We map these distances using $\text{Similarity} = 1 - \frac{\text{L2\_Distance}^2}{2}$ to display accurate, human-readable match percentages.
-3.  **LLM Temperature**: System prompts are structured with a low temperature (`0.1`) to ensure factual compliance and eliminate hallucinations. If a question is not found in the documents, the model yields: *"I'm sorry, but I couldn't find the answer to your question in the uploaded university documents."*
+1.  **Model Partitioning**: FAISS indexes are saved in directories by embedding model key. Switching from "BGE Small" to "MiniLM" dynamically routes the retrieval query to the correct vector database, avoiding dimensions mismatch errors.
+2.  **Embedding Caching**: The embedding manager caches text chunk representations. When re-indexing or rebuilding, identical text chunks are skipped and fetched from cache, saving CPU resources.
+3.  **Query Caching**: Turning on query caching stores generated results. The exact same question asked with the same parameters loads instantly, bypassing inference execution.
+4.  **Local Context Management**: When querying local models, context text is pruned to fit within the model's GGUF context window (e.g. 2048 or 4096 tokens) to prevent out-of-memory issues.
+5.  **Offline Summaries**: Summaries generated in Local mode slice the text to the first 5000 characters, enabling clean offline outlines without overloading local model buffers.

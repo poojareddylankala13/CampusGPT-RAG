@@ -9,27 +9,11 @@ except ImportError:
 
 logger = logging.getLogger("CampusGPT.embeddings")
 
-@st.cache_resource
+from modules.embedding_manager import get_cached_embedding_model
+
 def get_embeddings():
-    """Initializes and returns the HuggingFace embeddings model (BAAI/bge-small-en-v1.5).
+    """Returns the cached BAAI/bge-small-en-v1.5 embeddings model.
     
-    Uses st.cache_resource to load the model only once, sharing it across pages and sessions.
+    Provided for backward compatibility.
     """
-    logger.info("Initializing BAAI/bge-small-en-v1.5 Embeddings...")
-    model_name = "BAAI/bge-small-en-v1.5"
-    
-    # Configure BGE small settings (normalized embeddings are recommended for BGE cosine similarity)
-    model_kwargs = {'device': 'cpu'}
-    encode_kwargs = {'normalize_embeddings': True}
-    
-    try:
-        embeddings = HuggingFaceEmbeddings(
-            model_name=model_name,
-            model_kwargs=model_kwargs,
-            encode_kwargs=encode_kwargs
-        )
-        logger.info("Embeddings model loaded successfully.")
-        return embeddings
-    except Exception as e:
-        logger.error(f"Failed to load embeddings model: {str(e)}")
-        raise e
+    return get_cached_embedding_model("bge-small")

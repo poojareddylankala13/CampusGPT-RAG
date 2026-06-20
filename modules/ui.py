@@ -13,6 +13,20 @@ def inject_custom_css():
 
 def render_sidebar():
     """Renders a consistent sidebar layout for all subpages."""
+    # Initialize default settings variables
+    if "ai_mode" not in st.session_state:
+        st.session_state.ai_mode = "gemini"
+    if "embedding_model" not in st.session_state:
+        st.session_state.embedding_model = "bge-small"
+    if "retrieval_method" not in st.session_state:
+        st.session_state.retrieval_method = "similarity"
+    if "top_k" not in st.session_state:
+        st.session_state.top_k = 5
+    if "threshold" not in st.session_state:
+        st.session_state.threshold = 0.6
+    if "active_gguf_model" not in st.session_state:
+        st.session_state.active_gguf_model = ""
+        
     with st.sidebar:
         st.markdown("### 🎓 CampusGPT")
         if st.session_state.get('authenticated'):

@@ -44,8 +44,21 @@ if "user_email" not in st.session_state:
 if "user_role" not in st.session_state:
     st.session_state.user_role = "user"
 if "gemini_api_key" not in st.session_state:
-    # Set default API key from environment if present
     st.session_state.gemini_api_key = os.getenv("GEMINI_API_KEY", "")
+    
+# Initialize RAG specific session settings
+if "ai_mode" not in st.session_state:
+    st.session_state.ai_mode = "gemini"
+if "embedding_model" not in st.session_state:
+    st.session_state.embedding_model = "bge-small"
+if "retrieval_method" not in st.session_state:
+    st.session_state.retrieval_method = "similarity"
+if "top_k" not in st.session_state:
+    st.session_state.top_k = 5
+if "threshold" not in st.session_state:
+    st.session_state.threshold = 0.6
+if "active_gguf_model" not in st.session_state:
+    st.session_state.active_gguf_model = ""
 
 # --- Login & Registration Page ---
 if not st.session_state.authenticated:

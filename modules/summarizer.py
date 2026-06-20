@@ -1,4 +1,5 @@
 import logging
+import streamlit as st
 from modules.pdf_loader import validate_and_load_pdf
 from modules.rag_chain import get_llm
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -6,7 +7,9 @@ from langchain_core.messages import SystemMessage, HumanMessage
 logger = logging.getLogger("CampusGPT.summarizer")
 
 def generate_document_summary(doc_name, file_path):
-    """Loads a PDF document and generates a structured summary using Gemini.
+    """Loads a PDF document and generates a structured summary.
+    
+    Routes execution to either cloud Gemini or local Llama.cpp depending on active Settings.
     
     The structured summary contains:
     - Executive Summary
@@ -23,6 +26,7 @@ def generate_document_summary(doc_name, file_path):
         str: Markdown formatted summary of the document.
     """
     logger.info(f"Generating summary for {doc_name}...")
+    ai_mode = st.session_state.get('ai_mode', 'gemini')
     
     try:
         # 1. Load PDF pages
@@ -53,21 +57,50 @@ def generate_document_summary(doc_name, file_path):
             "(Actionable next steps for the reader, e.g., things they must submit, registers, check, or sign.)\n"
         )
         
-        human_prompt = f"Document Name: {doc_name}\n\nDocument Text:\n{full_text}"
-        
-        # 4. Invoke Gemini
-        llm = get_llm()
-        messages = [
-            SystemMessage(content=system_instruction),
-            HumanMessage(content=human_prompt)
-        ]
-        
-        logger.info(f"Invoking LLM for summarization on {doc_name}...")
-        response = llm.invoke(messages)
-        summary_markdown = response.content
-        
-        return summary_markdown
-        
+        # 4. Invoke LLM based on mode
+        if ai_mode == 'gemini':
+            human_prompt = f"Document Name: {doc_name}\n\nDocument Text:\n{full_text}"
+            llm = get_llm()
+            messages = [
+                SystemMessage(content=system_instruction),
+                HumanMessage(content=human_prompt)
+            ]
+            
+            logger.info("Invoking Gemini for document summarization...")
+            response = llm.invoke(messages)
+            return response.content
+            
+        else:
+            # Local Llama Mode
+            # GGUF models have limited context windows. Prune text safely to ~5000 characters for safety.
+            max_chars = 5000
+            pruned_text = full_text[:max_chars]
+            if len(full_text) > max_chars:
+                pruned_text += "\n... [Text truncated for local execution context limit] ..."
+                
+            active_model = st.session_state.get("active_gguf_model", "")
+            if not active_model:
+                return "⚠️ Summarization Error: No local GGUF model is selected. Go to Models page to configure."
+                
+            from modules.llm_local import is_llama_available, generate_local_response_stream
+            if not is_llama_available():
+                return "❌ Summarization Error: Llama.cpp binding is not available in the current environment."
+                
+            logger.info(f"Invoking local model {active_model} for offline summarization (pruned to {len(pruned_text)} chars)...")
+            prompt_text = f"Document Name: {doc_name}\n\nDocument Text:\n{pruned_text}"
+            
+            stream = generate_local_response_stream(
+                prompt=prompt_text,
+                model_filename=active_model,
+                system_prompt=system_instruction,
+                context_len=4096  # Set context window slightly larger for summarization task
+            )
+            
+            assembled_chunks = []
+            for chunk in stream:
+                assembled_chunks.append(chunk)
+            return "".join(assembled_chunks)
+            
     except ValueError as ve:
         return f"⚠️ Configuration Error: {str(ve)}"
     except Exception as e:

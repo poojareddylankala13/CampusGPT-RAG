@@ -25,9 +25,9 @@ with col_query:
 with st.expander("🛠️ Search Options & Filters"):
     col_k, col_thresh = st.columns(2)
     with col_k:
-        top_k = st.slider("Number of results to retrieve (k)", min_value=1, max_value=15, value=5)
+        top_k = st.slider("Number of results to retrieve (k)", min_value=1, max_value=15, value=st.session_state.get('top_k', 5))
     with col_thresh:
-        threshold = st.slider("Minimum similarity match (%)", min_value=0, max_value=100, value=30, step=5)
+        threshold = st.slider("Minimum similarity match (%)", min_value=0, max_value=100, value=int(st.session_state.get('threshold', 0.6) * 100), step=5)
 
 # Execute Search
 if search_query:
