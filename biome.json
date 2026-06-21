@@ -1,0 +1,25 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.8.0/schema.json",
+  "files": {
+    "ignore": [
+      "htmlcov/**",
+      "coverage/**",
+      ".venv/**",
+      "venv/**",
+      "node_modules/**",
+      ".git/**",
+      ".mypy_cache/**",
+      ".pytest_cache/**",
+      ".ruff_cache/**"
+    ]
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  }
+}

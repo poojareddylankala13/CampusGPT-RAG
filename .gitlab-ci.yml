@@ -103,3 +103,61 @@ pytest-coverage:
   script:
     - pytest --cov=modules --cov-report=term-missing
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\%)/'
+
+# --- JS LINT / FORMAT / ANALYSIS (NODE) ---
+js-eslint:
+  stage: lint
+  image: node:20
+  before_script:
+    - npm install
+  script:
+    - npm run lint:eslint
+
+js-biome:
+  stage: lint
+  image: node:20
+  before_script:
+    - npm install
+  script:
+    - npm run lint:biome
+
+js-oxlint:
+  stage: lint
+  image: node:20
+  before_script:
+    - npm install
+  script:
+    - npm run lint:oxlint
+
+js-knip:
+  stage: lint
+  image: node:20
+  before_script:
+    - npm install
+  script:
+    - npm run knip
+
+js-prettier:
+  stage: format
+  image: node:20
+  before_script:
+    - npm install
+  script:
+    - npm run format:prettier
+
+js-husky:
+  stage: test
+  image: node:20
+  before_script:
+    - npm install
+  script:
+    - npx husky
+
+js-coverage:
+  stage: coverage
+  image: node:20
+  before_script:
+    - npm install
+  script:
+    - npm run test:coverage
+

@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["dummy.js"],
+  "project": ["dummy.js"],
+  "ignoreDependencies": ["@vitest/coverage-v8"]
+}

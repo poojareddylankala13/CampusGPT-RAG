@@ -2,5 +2,25 @@
   "name": "campusgpt",
   "version": "1.0.0",
   "description": "CampusGPT - Intelligent University Knowledge and Document RAG Assistant",
-  "license": "AGPL-3.0"
+  "license": "AGPL-3.0",
+  "type": "module",
+  "scripts": {
+    "prepare": "husky",
+    "lint:eslint": "eslint .",
+    "lint:biome": "biome lint .",
+    "lint:oxlint": "oxlint --ignore-pattern \"node_modules\" --ignore-pattern \".venv\" --ignore-pattern \"htmlcov\" --ignore-pattern \"coverage\"",
+    "format:prettier": "prettier --check .",
+    "knip": "knip",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.8.0",
+    "eslint": "^9.0.0",
+    "husky": "^9.0.0",
+    "knip": "^5.0.0",
+    "oxlint": "^0.3.0",
+    "prettier": "^3.0.0",
+    "vitest": "^1.0.0",
+    "@vitest/coverage-v8": "^1.0.0"
+  }
 }

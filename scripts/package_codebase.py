@@ -31,6 +31,8 @@ def package_source_code_zip():
                     ".mypy_cache",
                     ".pytest_cache",
                     ".ruff_cache",
+                    "node_modules",
+                    "coverage",
                 ]
             ):
                 continue

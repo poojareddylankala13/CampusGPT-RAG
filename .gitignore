@@ -25,3 +25,8 @@ Thumbs.db
 # Test coverage & cached directories
 .coverage
 cache/
+
+# Node.js
+node_modules/
+coverage/
+package-lock.json
